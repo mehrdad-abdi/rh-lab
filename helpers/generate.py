@@ -1,0 +1,51 @@
+"""
+runs vLLM over all tasks with n samples each and writes samples.jsonl (task id, sample index, raw response).
+"""
+
+from vllm import LLM, SamplingParams
+from .prompts import build_chat_messages
+import json
+
+
+def generate_samples_for_tasks(
+    tasks,
+    model_name: str,
+    save_path: str = "output/raw_completions/",
+    gpu_memory_utilization: float = 0.85,
+    max_model_len: int = 4096,
+    n: int = 10,
+    temperature: float = 0.8,
+    top_p: float = 0.95,
+    max_tokens: int = 512,
+    seed: int = 0,
+):
+    llm = LLM(
+        model=model_name,
+        gpu_memory_utilization=gpu_memory_utilization,
+        max_model_len=max_model_len,
+        seed=seed,
+    )
+    print(
+        f"Loaded model {model_name} with max_model_len={max_model_len} and gpu_memory_utilization={gpu_memory_utilization}."
+    )
+    params = SamplingParams(
+        n=n, temperature=temperature, top_p=top_p, max_tokens=max_tokens, seed=seed
+    )
+    print(
+        f"Sampling parameters: n={n}, temperature={temperature}, top_p={top_p}, max_tokens={max_tokens}, seed={seed}."
+    )
+
+    conversations = [build_chat_messages(task) for task in tasks]
+    print(f"Built chat messages for {len(conversations)} tasks.")
+    outputs = llm.chat(messages=conversations, sampling_params=params)
+    print(f"Generated samples for {len(outputs)} tasks.")
+    all_samples = dict()
+    for task, out in zip(tasks, outputs):
+        all_samples[task["task_id"]] = []
+        with open(f"{save_path}task_{task['task_id']}.jsonl", "w") as f:
+            for completion in out.outputs:
+                all_samples[task["task_id"]].append({"raw_response": completion.text})
+                f.write(json.dumps({"raw_response": completion.text}) + "\n")
+
+    print(f"Finished generating samples for all tasks.")
+    return all_samples
