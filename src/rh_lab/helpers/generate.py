@@ -41,10 +41,10 @@ def generate_samples_for_tasks(
     print(f"Generated samples for {len(outputs)} tasks.")
     all_samples = dict()
     for task, out in zip(tasks, outputs):
-        all_samples[task["task_id"]] = []
-        with open(f"{save_path}task_{task['task_id']}.jsonl", "w") as f:
+        file_path = f"{save_path}task_{task['task_id']}.jsonl"
+        with open(file_path, "w") as f:
             for completion in out.outputs:
-                all_samples[task["task_id"]].append({"raw_response": completion.text})
+                all_samples[task["task_id"]] = file_path
                 f.write(json.dumps({"raw_response": completion.text}) + "\n")
 
     print(f"Finished generating samples for all tasks.")

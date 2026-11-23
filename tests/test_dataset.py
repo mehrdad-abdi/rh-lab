@@ -1,12 +1,12 @@
 """Test dataset loading and prompt building for MBPP+ dataset."""
 
 import pytest
+from rh_lab.helpers.data import load_mbpp_plus
+from rh_lab.helpers.prompts import build_chat_messages
 
 
 @pytest.fixture
 def tasks():
-    from helpers.data import load_mbpp_plus
-
     return load_mbpp_plus()
 
 
@@ -20,8 +20,6 @@ def test_load_mbpp_plus(tasks):
 
 
 def test_build_chat_messages(tasks):
-    from helpers.prompts import build_chat_messages
-
     for task in tasks:
         messages = build_chat_messages(task)
         assert isinstance(messages, list), "Chat messages should be a list."

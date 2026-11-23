@@ -4,7 +4,8 @@ import os
 
 import pytest
 import json
-from helpers.extract import extract_code_from_response
+from rh_lab.helpers.extract import extract_code_from_response
+
 
 @pytest.fixture
 def completion_success():
@@ -64,19 +65,30 @@ def completion_failure():
 def test_extract_success(completion_success):
     for completion in completion_success:
         code, extraction_failed = extract_code_from_response(completion)
-        assert not extraction_failed, f"Extraction should not fail for a valid response: {completion}"
-        assert code.strip().startswith("def "), "Extracted code should start with 'def '."
+        assert not extraction_failed, (
+            f"Extraction should not fail for a valid response: {completion}"
+        )
+        assert code.strip().startswith("def "), (
+            "Extracted code should start with 'def '."
+        )
 
 
 def test_extract_failure(completion_failure):
     for completion in completion_failure:
         code, extraction_failed = extract_code_from_response(completion)
-        assert extraction_failed, f"Extraction should fail for an invalid response: {completion}"
-        assert code == completion, "Extracted code should be the same as the original response when extraction fails."
+        assert extraction_failed, (
+            f"Extraction should fail for an invalid response: {completion}"
+        )
+        assert code == completion, (
+            "Extracted code should be the same as the original response when extraction fails."
+        )
+
 
 def test_output_raw():
     if not os.path.exists("output/raw_completions/"):
-        pytest.skip("Raw completions directory does not exist. Run step_1.py to generate samples.")
+        pytest.skip(
+            "Raw completions directory does not exist. Run step_1.py to generate samples."
+        )
 
     for filename in os.listdir("output/raw_completions/"):
         if filename.endswith(".jsonl"):
@@ -84,8 +96,12 @@ def test_output_raw():
                 line_no = 0
                 for line in f:
                     data = json.loads(line.strip())
-                    assert "raw_response" in data, "Each line should contain a 'raw_response' field."
-                    code, extraction_status = extract_code_from_response(data["raw_response"])
+                    assert "raw_response" in data, (
+                        "Each line should contain a 'raw_response' field."
+                    )
+                    code, extraction_status = extract_code_from_response(
+                        data["raw_response"]
+                    )
                     if not extraction_status:
                         print(f"check extraction for {filename}: {line_no}...")
                     line_no += 1

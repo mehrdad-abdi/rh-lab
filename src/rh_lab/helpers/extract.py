@@ -5,7 +5,10 @@ pulls the code out of each response: the first ```python block, falling back to 
 import re
 import ast
 
-code_pattern = re.compile(r"```(?:python|py)?[^\n]*\n(.*?)```", re.DOTALL | re.IGNORECASE)
+code_pattern = re.compile(
+    r"```(?:python|py)?[^\n]*\n(.*?)```", re.DOTALL | re.IGNORECASE
+)
+
 
 def extract_code_from_response(response: str):
     response = response.strip()
