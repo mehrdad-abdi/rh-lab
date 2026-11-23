@@ -49,19 +49,19 @@ def test_process_limited_timeout(python_file_maker):
 def test_run_in_docker_success(python_file_maker):
     # Test a simple Python program that should pass in Docker
     filename = python_file_maker("print('Hello from Docker!')")
-    run_in_docker(filename)
+    run_in_docker(["python", filename], out_dir="output/docker_out")
 
 
 def test_run_in_docker_raise(python_file_maker):
     filename = python_file_maker("raise ValueError('This should fail')")
     with pytest.raises(subprocess.CalledProcessError):
-        run_in_docker(filename)
+        run_in_docker(["python", filename], out_dir="output/docker_out")
 
 
 def test_run_in_docker_exit_code(python_file_maker):
     filename = python_file_maker("import sys; sys.exit(1)")
     with pytest.raises(subprocess.CalledProcessError):
-        run_in_docker(filename)
+        run_in_docker(["python", filename], out_dir="output/docker_out")
 
 
 def test_run_in_docker_readonly(python_file_maker):
@@ -69,13 +69,13 @@ def test_run_in_docker_readonly(python_file_maker):
         "with open('test.txt', 'w') as f: f.write('This should fail')"
     )
     with pytest.raises(subprocess.CalledProcessError):
-        run_in_docker(filename)
+        run_in_docker(["python", filename], out_dir="output/docker_out")
 
     filename = python_file_maker(
         "with open('/work/test.txt', 'w') as f: f.write('This should fail')"
     )
     with pytest.raises(subprocess.CalledProcessError):
-        run_in_docker(filename)
+        run_in_docker(["python", filename], out_dir="output/docker_out")
 
 
 def test_run_in_docker_writable(python_file_maker):
@@ -85,6 +85,6 @@ def test_run_in_docker_writable(python_file_maker):
         f"with open('/out/test.txt', 'w') as f: f.write('{text}')"
     )
 
-    run_in_docker(filename, out_dir=out_dir)
+    run_in_docker(["python", filename], out_dir=out_dir)
     assert os.path.exists(f"{out_dir}/test.txt")
     assert open(f"{out_dir}/test.txt").read() == text

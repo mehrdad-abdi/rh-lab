@@ -1,38 +1,43 @@
+import argparse
 from rh_lab.helpers.data import load_mbpp_plus
 from rh_lab.helpers.generate import generate_samples_for_tasks
-from rh_lab.helpers.sandbox import run_in_docker
+from rh_lab.helpers.grade import build_graders, run_graders
 import os
+import json
 
-
-MODEL = "Qwen/Qwen2.5-Coder-1.5B-Instruct"
-SAMPLE_N = 10
-
-
-def main():
+def lab_process(config, dry_run):
     tasks = load_mbpp_plus()
     print(f"Loaded {len(tasks)} tasks from MBPP+ dataset.")
-    os.makedirs("output/raw_completions/", exist_ok=True)
+    os.makedirs(config["save_path"], exist_ok=True)
 
     samples = generate_samples_for_tasks(
         tasks,
-        save_path="output/raw_completions/",
-        model_name=MODEL,
-        n=SAMPLE_N,
-        temperature=0.8,
-        top_p=0.95,
-        max_tokens=512,
-        seed=0,
+        save_path=config["save_path"],
+        model_name=config["model"],
+        n=config["sample_n"],
+        temperature=config["temperature"],
+        top_p=config["top_p"],
+        max_tokens=config["max_tokens"],
+        seed=config["seed"],
+        dry_run=dry_run
     )
 
-    for task, result in zip(tasks, samples):
-        print(f"Grading task {task['task_id']} with generated samples from {result}.")
-        run_in_docker(
-            "src/rh_lab/helpers/grader.py",
-            ["--task", task["task_id"], "--jsonl", result],
-        )
+    os.makedirs(config["grader_out_dir"], exist_ok=True)
 
-    # breakpoint()  # You can inspect the `samples` variable here to see the generated samples for each task.
+    build_graders(tasks, samples, config["grader_out_dir"], config["manifest_file"], dry_run=dry_run)
+    run_graders(config["manifest_file"], config["grader_out_dir"])
 
+
+def main():
+    parser = argparse.ArgumentParser(description="Reward-Hacking Lab.")
+    parser.add_argument("--config", default="config.json", help="Path to the configuration file.")
+    parser.add_argument("--dry-run", action="store_true", help="Perform a dry run without generating samples.")
+    args = parser.parse_args()
+
+    config = json.load(open(args.config))
+
+    lab_process(config, args.dry_run)
+    
 
 if __name__ == "__main__":
     main()

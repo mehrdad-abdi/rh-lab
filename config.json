@@ -1,0 +1,11 @@
+{
+    "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+    "sample_n": 10,
+    "temperature": 0.8,
+    "top_p": 0.95,
+    "max_tokens": 512,
+    "seed": 0,
+    "save_path": "output/raw_completions/",
+    "grader_out_dir": "output/graders/",
+    "manifest_file": "output/manifest.json"
+}

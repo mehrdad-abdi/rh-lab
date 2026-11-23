@@ -39,11 +39,10 @@ def run_python_process_limited(program: str, timeout: int = 5):
 
 
 def run_in_docker(
-    file_name: str, out_dir: str = "output/docker_out", args: list[str] = None
+    cmds: list[str], out_dir: str = "output/docker_out", image: str = "python:3.11-slim", extra:list = None
 ):
-    if args is None:
-        args = []
-    args = args or []
+    if not extra:
+        extra = []
     project = os.getcwd()
     out = os.path.abspath(out_dir)
     os.makedirs(out, exist_ok=True)
@@ -74,10 +73,9 @@ def run_in_docker(
         f"{out}:/out",  # results: the only writable mount
         "-w",
         "/work",
-        "python:3.11-slim",
-        "python",
-        file_name,
-        *args,
+        *extra,
+        image,
+        *cmds,
     ]
 
     subprocess.run(cmd, check=True)
