@@ -42,7 +42,9 @@ def _build_graders_for_task(task: dict, sample_path: str, out_dir: str):
     results = []
     with open(sample_path, "r") as file:
         for line_num, line in enumerate(file.readlines(), start=1):
-            os.makedirs(out_dir + f"task_{task['task_id']}/sample_{line_num}/", exist_ok=True)
+            os.makedirs(
+                out_dir + f"task_{task['task_id']}/sample_{line_num}/", exist_ok=True
+            )
             sample = json.loads(line)
             solution_path = (
                 out_dir + f"task_{task['task_id']}/sample_{line_num}/solution.py"
@@ -81,7 +83,13 @@ def _build_graders_for_task(task: dict, sample_path: str, out_dir: str):
     return results
 
 
-def build_graders(tasks: list, samples: dict, out_dir: str, manifest_save_to: str, dry_run: bool = False):
+def build_graders(
+    tasks: list,
+    samples: dict,
+    out_dir: str,
+    manifest_save_to: str,
+    dry_run: bool = False,
+):
     manifest = []
     if dry_run:
         if os.path.exists(manifest_save_to):
@@ -104,14 +112,14 @@ def run_graders(manifest_path: str, out_dir: str, dry_run: bool = False):
         return
     run_in_docker(
         [
-            "run",
-            "grade-samples",
+            "python",
+            "-m",
+            "rh_lab.grader_runner",
             "--manifest_path",
             manifest_path,
-            "--out_dir",
-            out_dir,
+            "--out_file",
+            "/out/grades.json",
         ],
         out_dir=out_dir,
-        image="ghcr.io/astral-sh/uv:latest",
-        extra=["-e", "UV_CACHE_DIR=/tmp/uv-cache"]
+        extra=["-e", "PYTHONPATH=/work/src"],
     )

@@ -7,5 +7,6 @@
     "seed": 0,
     "save_path": "output/raw_completions/",
     "grader_out_dir": "output/graders/",
-    "manifest_file": "output/manifest.json"
+    "manifest_file": "output/manifest.json",
+    "grade_result_dir": "output/"
 }

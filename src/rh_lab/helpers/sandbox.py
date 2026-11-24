@@ -19,7 +19,7 @@ def _set_limits():
 def run_python_process_limited(program: str, timeout: int = 5):
     # Run the Python program in a subprocess
     proc = subprocess.Popen(
-        [sys.executable, "-I", program],
+        [sys.executable, "-s", "-E", program],
         stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -39,7 +39,10 @@ def run_python_process_limited(program: str, timeout: int = 5):
 
 
 def run_in_docker(
-    cmds: list[str], out_dir: str = "output/docker_out", image: str = "python:3.11-slim", extra:list = None
+    cmds: list[str],
+    out_dir: str = "output/docker_out",
+    image: str = "python:3.11-slim",
+    extra: list = None,
 ):
     if not extra:
         extra = []

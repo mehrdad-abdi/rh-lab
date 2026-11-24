@@ -14,9 +14,10 @@ def _return_saved_results(tasks, save_path):
     for task in tasks:
         file_path = f"{save_path}task_{task['task_id']}.jsonl"
         all_samples[task["task_id"]] = file_path
-        
+
     print("Dry run; skipped calling LLM and reurned the cached files.")
     return all_samples
+
 
 def generate_samples_for_tasks(
     tasks,
@@ -29,7 +30,7 @@ def generate_samples_for_tasks(
     top_p: float = 0.95,
     max_tokens: int = 512,
     seed: int = 0,
-    dry_run: bool = False
+    dry_run: bool = False,
 ):
     if dry_run:
         if os.path.isdir(save_path) and os.listdir(save_path):
@@ -59,7 +60,7 @@ def generate_samples_for_tasks(
         file_path = f"{save_path}task_{task['task_id']}.jsonl"
         all_samples[task["task_id"]] = file_path
         with open(file_path, "w") as f:
-            for completion in out.outputs:        
+            for completion in out.outputs:
                 f.write(json.dumps({"raw_response": completion.text}) + "\n")
 
     print(f"Finished generating samples for all tasks.")

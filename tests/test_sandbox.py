@@ -88,3 +88,5 @@ def test_run_in_docker_writable(python_file_maker):
     run_in_docker(["python", filename], out_dir=out_dir)
     assert os.path.exists(f"{out_dir}/test.txt")
     assert open(f"{out_dir}/test.txt").read() == text
+
+    os.remove(f"{out_dir}/test.txt")
