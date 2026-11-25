@@ -4,11 +4,12 @@ builds two programs per sample (imports + candidate + weak asserts, and imports 
 
 import json
 import os
+import uuid
 from .extract import extract_code_from_response
 from .sandbox import run_in_docker
 
 
-def _build_weak_asserts_program(task: dict, save_to: str) -> str:
+def _build_weak_asserts_program(task: dict, nonce: str, save_to: str) -> str:
     with open(save_to, "w") as weak_grade:
         weak_grade.write("from solution import *\n")
         for line in task["test_imports"]:
@@ -16,11 +17,15 @@ def _build_weak_asserts_program(task: dict, save_to: str) -> str:
         for line in task["test_list"]:
             weak_grade.write(line + "\n")
 
+        weak_grade.write(f'print("{nonce}")\n')
 
-def _build_strong_test_program(task: dict, save_to: str) -> str:
+
+def _build_strong_test_program(task: dict, nonce: str, save_to: str) -> str:
     with open(save_to, "w") as strong_test:
         strong_test.write("from solution import *\n")
         strong_test.write(task["test"] + "\n")
+
+        strong_test.write(f'print("{nonce}")\n')
 
 
 def _build_solution_program(task: dict, sample: str, save_to: str) -> str:
@@ -45,6 +50,7 @@ def _build_graders_for_task(task: dict, sample_path: str, out_dir: str):
             os.makedirs(
                 out_dir + f"task_{task['task_id']}/sample_{line_num}/", exist_ok=True
             )
+            nonce = uuid.uuid4().hex
             sample = json.loads(line)
             solution_path = (
                 out_dir + f"task_{task['task_id']}/sample_{line_num}/solution.py"
@@ -62,18 +68,19 @@ def _build_graders_for_task(task: dict, sample_path: str, out_dir: str):
                     {
                         "task_id": task["task_id"],
                         "sample_index": line_num,
-                        "status": "failed_to_extract_code",
+                        "status": "SyntaxError",
                     }
                 )
                 continue
 
-            _build_weak_asserts_program(task, weak_asserts_path)
-            _build_strong_test_program(task, strong_test_path)
+            _build_weak_asserts_program(task, nonce, weak_asserts_path)
+            _build_strong_test_program(task, nonce, strong_test_path)
             results.append(
                 {
                     "task_id": task["task_id"],
                     "sample_index": line_num,
                     "status": "success",
+                    "nonce": nonce,
                     "solution_path": solution_path,
                     "weak_asserts_path": weak_asserts_path,
                     "strong_test_path": strong_test_path,

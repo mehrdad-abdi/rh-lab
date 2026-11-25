@@ -41,7 +41,7 @@ def run_python_process_limited(program: str, timeout: int = 5):
 def run_in_docker(
     cmds: list[str],
     out_dir: str = "output/docker_out",
-    image: str = "python:3.11-slim",
+    image: str = "rh-sandbox:1",
     extra: list = None,
 ):
     if not extra:
