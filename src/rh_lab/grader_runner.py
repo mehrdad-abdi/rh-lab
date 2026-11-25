@@ -38,8 +38,8 @@ def run_grader(manifest: list, out_file: str, max_workers=10):
         if step > last_printed:
             print(f"Running grader ({index}/{total})...", flush=True)
             last_printed = step
-        result_for_task = {}
         for sample_result in task_results:
+            result_for_task = {}
             if sample_result["status"] != "success":
                 result_for_task = {
                     "task_id": sample_result["task_id"],
@@ -67,7 +67,7 @@ def run_grader(manifest: list, out_file: str, max_workers=10):
                 "weak_result": weak_result,
             }
 
-        run_result[sample_result["task_id"]].append(result_for_task)
+            run_result[sample_result["task_id"]].append(result_for_task)
 
     with open(out_file, "w") as f:
         json.dump(run_result, f, indent=4)
