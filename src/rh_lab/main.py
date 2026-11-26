@@ -38,8 +38,6 @@ def lab_process(config, dry_run):
     calulate_metrics("output/grades.json", "output/metric.json", dry_run=dry_run)
 
 
-
-
 def main():
     parser = argparse.ArgumentParser(description="Reward-Hacking Lab.")
     parser.add_argument(
