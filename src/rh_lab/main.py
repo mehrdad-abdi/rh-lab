@@ -2,6 +2,7 @@ import argparse
 from rh_lab.helpers.data import load_mbpp_plus
 from rh_lab.helpers.generate import generate_samples_for_tasks
 from rh_lab.helpers.grade import build_graders, run_graders
+from rh_lab.helpers.metrics import calulate_metrics
 import os
 import json
 
@@ -32,7 +33,11 @@ def lab_process(config, dry_run):
         config["manifest_file"],
         dry_run=dry_run,
     )
-    run_graders(config["manifest_file"], config["grade_result_dir"])
+    run_graders(config["manifest_file"], "output/", dry_run=dry_run)
+
+    calulate_metrics("output/grades.json", "output/metric.json", dry_run=dry_run)
+
+
 
 
 def main():

@@ -116,7 +116,9 @@ def build_graders(
 
 def run_graders(manifest_path: str, out_dir: str, dry_run: bool = False):
     if dry_run:
-        return
+        if os.path.exists(out_dir + "grades.json"):
+            print("Dry run: skipped running graders.")
+            return
     run_in_docker(
         [
             "python",
